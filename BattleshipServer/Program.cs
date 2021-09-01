@@ -3,6 +3,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace BattleshipServer
 {
@@ -34,6 +35,7 @@ namespace BattleshipServer
         static void Main(string[] args)
         {
             IPAddress ip = null;
+            int gameend, turnend;
             var host = Dns.GetHostEntry(Dns.GetHostName());
 
             foreach(var tempip in host.AddressList)
@@ -57,6 +59,7 @@ namespace BattleshipServer
             player1.username = getMessage(user1);
 
             Console.WriteLine(user1.RemoteEndPoint + " connected. Username: " + player1.username);
+            sendMessage(user1, "Waiting for player2");
 
             Socket user2 = mylist.AcceptSocket();
             User player2 = new User();
@@ -64,8 +67,77 @@ namespace BattleshipServer
 
             Console.WriteLine(user2.RemoteEndPoint + " connected. Username: " + player2.username + "\n");
 
+            sendMessage(user1, "ok");
+            sendMessage(user2, "ok");
 
+            gameend = 0;
+            turnend = 0;
+            string msg1, msg2;
+            string[] split;
 
+            while (gameend == 0)
+            {
+                sendMessage(user1, player1.username + " your turn");
+
+                while (turnend == 0)
+                {
+
+                    Task.Factory.StartNew(() =>
+                    {
+                        msg2 = getMessage(user2);
+                        split = msg2.Split("-t");
+                        sendMessage(user1, split[0]);
+                        Console.WriteLine(Task.CompletedTask);
+                    });
+
+                    Task.Factory.StartNew(() =>
+                    {
+                        msg1 = getMessage(user1);
+
+                        if (msg1.EndsWith("-t"))
+                        {
+                            split = msg1.Split("-t");
+                            sendMessage(user2, split[0]);
+                        }
+                        else
+                        {
+                            //
+                            // Hit Control
+                            //
+                        }
+                    });
+                }
+
+                sendMessage(user2, player2.username + " your turn.");
+
+                while (turnend == 1)
+                {
+
+                    Task.Factory.StartNew(() =>
+                    {
+                        msg1 = getMessage(user1); 
+                        split = msg1.Split("-t");
+                        sendMessage(user2, split[0]);
+                    });
+
+                    Task.Factory.StartNew(() =>
+                    {
+                        msg2 = getMessage(user2);
+
+                        if (msg2.EndsWith("-t"))
+                        {
+                            split = msg2.Split("-t");
+                            sendMessage(user1, split[0]);
+                        }
+                        else
+                        {
+                            //
+                            // Hit Control
+                            //
+                        }
+                    });
+                }
+            }
         }
     }
 }
