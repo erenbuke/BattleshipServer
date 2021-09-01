@@ -70,10 +70,22 @@ namespace BattleshipServer
             sendMessage(user1, "ok");
             sendMessage(user2, "ok");
 
+            sendMessage(user1, player2.username);
+            sendMessage(user1, player1.username);
+
+            sendMessage(user2, player1.username);
+            sendMessage(user2, player2.username);
+
             gameend = 0;
             turnend = 0;
             string msg1, msg2;
-            string[] split;
+
+            player1.shipcount = 5;
+            player2.shipcount = 5;
+
+            Task chat1;
+            Task chat2;
+            Task chat3;
 
             while (gameend == 0)
             {
@@ -81,23 +93,15 @@ namespace BattleshipServer
 
                 while (turnend == 0)
                 {
-
-                    Task.Factory.StartNew(() =>
-                    {
-                        msg2 = getMessage(user2);
-                        split = msg2.Split("-t");
-                        sendMessage(user1, split[0]);
-                        Console.WriteLine(Task.CompletedTask);
-                    });
-
-                    Task.Factory.StartNew(() =>
+                    chat2 = Task.Factory.StartNew(() =>
                     {
                         msg1 = getMessage(user1);
+                        msg1 = player1.username + ": " + msg1;
 
                         if (msg1.EndsWith("-t"))
                         {
-                            split = msg1.Split("-t");
-                            sendMessage(user2, split[0]);
+                            sendMessage(user2, msg1.Substring(0, (msg1.Length - 2)));
+                            sendMessage(user1, msg1.Substring(0, (msg1.Length - 2)));
                         }
                         else
                         {
@@ -106,34 +110,61 @@ namespace BattleshipServer
                             //
                         }
                     });
+
+                    chat1 = Task.Factory.StartNew(() =>
+                    {
+                        while (true)
+                        {
+                            msg2 = getMessage(user2);
+                            msg2 = player2.username + ": " + msg2;
+                            sendMessage(user1, msg2.Substring(0, (msg2.Length - 2)));
+                            sendMessage(user2, msg2.Substring(0, (msg2.Length - 2)));
+
+                            if (chat2.IsCompleted)
+                            {
+                                break;
+                            }
+                        }
+                    });
+                    chat2.Wait();
                 }
 
                 sendMessage(user2, player2.username + " your turn.");
 
                 while (turnend == 1)
                 {
-
-                    Task.Factory.StartNew(() =>
-                    {
-                        msg1 = getMessage(user1); 
-                        split = msg1.Split("-t");
-                        sendMessage(user2, split[0]);
-                    });
-
-                    Task.Factory.StartNew(() =>
+                    chat3 = Task.Factory.StartNew(() =>
                     {
                         msg2 = getMessage(user2);
+                        msg2 = player2.username + ": " + msg2;
 
                         if (msg2.EndsWith("-t"))
                         {
-                            split = msg2.Split("-t");
-                            sendMessage(user1, split[0]);
+                            sendMessage(user2, msg2.Substring(0, (msg2.Length - 2)));
+                            sendMessage(user1, msg2.Substring(0, (msg2.Length - 2)));
                         }
                         else
                         {
                             //
                             // Hit Control
                             //
+                        }
+                    });
+
+                    chat2 = Task.Factory.StartNew(() =>
+                    {
+                        while (true)
+                        {
+                            msg1 = getMessage(user1);
+                            msg1 = player1.username + ": " + msg1;
+
+                            sendMessage(user2, msg1.Substring(0, (msg1.Length - 2)));
+                            sendMessage(user1, msg1.Substring(0, (msg1.Length - 2)));
+
+                            if (chat3.IsCompleted)
+                            {
+                                break;
+                            }
                         }
                     });
                 }

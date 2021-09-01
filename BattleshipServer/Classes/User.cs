@@ -7,6 +7,7 @@ namespace BattleshipServer.Classes
     class User
     {
         public string username;
+        public int shipcount;
 
     }
 }
