@@ -89,7 +89,7 @@ namespace BattleshipServer
 
             while (gameend == 0)
             {
-                sendMessage(user1, player1.username + " your turn");
+                sendMessage(user1, player1.username + " your turn-t");
 
                 while (turnend == 0)
                 {
@@ -100,8 +100,8 @@ namespace BattleshipServer
 
                         if (msg1.EndsWith("-t"))
                         {
-                            sendMessage(user2, msg1.Substring(0, (msg1.Length - 2)));
-                            sendMessage(user1, msg1.Substring(0, (msg1.Length - 2)));
+                            sendMessage(user2, msg1);
+                            sendMessage(user1, msg1);
                         }
                         else
                         {
@@ -117,8 +117,8 @@ namespace BattleshipServer
                         {
                             msg2 = getMessage(user2);
                             msg2 = player2.username + ": " + msg2;
-                            sendMessage(user1, msg2.Substring(0, (msg2.Length - 2)));
-                            sendMessage(user2, msg2.Substring(0, (msg2.Length - 2)));
+                            sendMessage(user1, msg2);
+                            sendMessage(user2, msg2);
 
                             if (chat2.IsCompleted)
                             {
